@@ -5,6 +5,7 @@ import numpy as np
 
 app = FastAPI()
 
+
 # configuración
 BUCKET_NAME = "mlopsprojecbck"
 ONNX_MODEL = "model_onnx/mnist-12-int8.onnx"
