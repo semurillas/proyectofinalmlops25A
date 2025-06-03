@@ -7,35 +7,70 @@ on:
     branches: [ prod ]
 
 jobs:
-  build-and-test:
+  test-model:
     runs-on: ubuntu-latest
   
     env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
 
-    - name: Cache Docker layers
-      uses: actions/cache@v3
-      with:
-        path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-buildx-
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest boto3 python-dotenv
 
-    - name: Build Docker image
-      run: |
-        IMAGE_TAG=${{ github.ref_name }}
-        docker build -t onnx_model_pred:$IMAGE_TAG .
+      - name: Run ONNX model tests
+        run: |
+          pytest test/test_onnx_model.py -v
+  build-and-promote:
+    needs: test-model
+    runs-on: ubuntu-latest
 
-    - name: Run basic container test
-      run: |
-        IMAGE_TAG=${{ github.ref_name }}
-        docker run --rm onnx_model_pred:$IMAGE_TAG echo "Contenedor $IMAGE_TAG construido correctamente"
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
 
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set environment variables by branch
+        run: |
+          if [[ "${{ github.ref_name }}" == "prod" ]]; then
+            echo "PORT=8001" >> $GITHUB_ENV
+            echo "IMAGE_TAG=onnx_model_prod" >> $GITHUB_ENV
+          else
+            echo "PORT=8000" >> $GITHUB_ENV
+            echo "IMAGE_TAG=onnx_model_dev" >> $GITHUB_ENV
+          fi
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image with tag
+        run: |
+          docker build -t $IMAGE_TAG .
+
+      - name: Run Docker container with correct port
+        run: |
+          docker run -d -e PORT=${{ env.PORT }} \
+            -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+            -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+            -e AWS_REGION=${{ secrets.AWS_REGION }} \
+            -p $PORT:$PORT $IMAGE_TAG

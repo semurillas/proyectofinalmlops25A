@@ -5,11 +5,12 @@ import numpy as np
 
 app = FastAPI()
 
+
 # configuración
 BUCKET_NAME = "mlopsprojecbck"
-MODEL_KEY = "model_onnx/mnist-12-int8.onnx"
+ONNX_MODEL = "model_onnx/mnist-12-int8.onnx"
 
-download_model_from_s3(BUCKET_NAME, MODEL_KEY)
+download_model_from_s3(BUCKET_NAME, ONNX_MODEL)  # Descarga el modelo ONNX desde S3
 session = load_model()
 
 class InputData(BaseModel):
