@@ -1,23 +1,31 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from onnx_predictor import download_model_from_s3, load_model, predict
 import numpy as np
+import uvicorn
 
 app = FastAPI()
 
-
-# configuración
+# Configuración del modelo
 BUCKET_NAME = "mlopsprojecbck"
-ONNX_MODEL = "model_onnx/mnist-12-int8.onnx"
+MODEL_PATH = "model_onnx/mnist-12-int8.onnx"
 
-download_model_from_s3(BUCKET_NAME, ONNX_MODEL)  # Descarga el modelo ONNX desde S3
+download_model_from_s3(BUCKET_NAME, MODEL_PATH)
 session = load_model()
 
 class InputData(BaseModel):
-    pixels: list[float]  # o list[int], según el input del modelo
+    pixels: list[float]
 
 @app.post("/predict")
-def predict_digit(data: InputData):
-    arr = np.array(data.pixels, dtype=np.float32).reshape(1, 1, 28, 28)  # según el input esperado
-    pred = predict(session, arr)
-    return {"prediccion": pred}
+async def predict_digit(data: InputData):
+    try:
+        if len(data.pixels) != 28 * 28:
+            raise ValueError("La entrada debe tener exactamente 784 valores (28x28)")
+
+        arr = np.array(data.pixels, dtype=np.float32).reshape(1, 1, 28, 28)
+        pred = predict(session, arr)
+        return JSONResponse(content={"prediccion": pred})
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
