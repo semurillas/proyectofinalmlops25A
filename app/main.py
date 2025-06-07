@@ -1,11 +1,21 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from onnx_predictor import download_model_from_s3, load_model, predict
 import numpy as np
 import uvicorn
 
+
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # o ["http://localhost:3000"] si quieres ser más restrictivo
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Configuración del modelo
 BUCKET_NAME = "mlopsprojecbck"
