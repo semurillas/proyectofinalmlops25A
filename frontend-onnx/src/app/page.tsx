@@ -51,7 +51,7 @@ export default function Home() {
         return;
       }
 
-      const response = await fetch("http://18.118.197.158:8001/predict", {
+      const response = await fetch("alb-backend-predictor-1055852265.us-east-2.elb.amazonaws.com/predict", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
