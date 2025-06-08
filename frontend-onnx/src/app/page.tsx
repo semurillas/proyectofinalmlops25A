@@ -51,11 +51,7 @@ export default function Home() {
         return;
       }
 
-<<<<<<< HEAD
       const response = await fetch("http://alb-backend-predictor-1055852265.us-east-2.elb.amazonaws.com/predict", {
-=======
-      const response = await fetch("alb-backend-predictor-1055852265.us-east-2.elb.amazonaws.com/predict", {
->>>>>>> 6954028526858f3aed290ad3fc94487a379ba6f6
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
