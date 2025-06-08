@@ -38,7 +38,7 @@ export default function Home() {
         return;
       }
 
-      const response = await fetch("http://3.21.234.244:8000/predict", {
+      const response = await fetch("http://18.118.208.57:8001/predict", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -50,9 +50,11 @@ export default function Home() {
 
       const data = await response.json();
       setResult(data.prediccion?.toString() || "Sin resultado");
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Error desconocido";
       console.error("Error:", err);
-      setError(err.message || "Error desconocido");
+      setError(errorMessage);
+      setResult(null);      
     }
   };
 
