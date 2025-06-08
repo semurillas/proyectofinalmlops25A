@@ -1,17 +1,28 @@
 "use client";
 import { useState } from "react";
 
-
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0] || null;
     setFile(selectedFile);
     setResult(null);
     setError(null);
+
+    if (selectedFile && selectedFile.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(selectedFile);
+    } else {
+      setImagePreview(null);
+    }
   };
 
   const handleSubmit = async () => {
@@ -24,6 +35,7 @@ export default function Home() {
     let payload: { pixels: number[] };
 
     try {
+      setLoading(true);
       if (fileType === "application/json") {
         const text = await file.text();
         const json = JSON.parse(text);
@@ -39,7 +51,11 @@ export default function Home() {
         return;
       }
 
+<<<<<<< HEAD
       const response = await fetch("http://alb-backend-predictor-1055852265.us-east-2.elb.amazonaws.com/predict", {
+=======
+      const response = await fetch("alb-backend-predictor-1055852265.us-east-2.elb.amazonaws.com/predict", {
+>>>>>>> 6954028526858f3aed290ad3fc94487a379ba6f6
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -55,14 +71,15 @@ export default function Home() {
       const errorMessage = err instanceof Error ? err.message : "Error desconocido";
       console.error("Error:", err);
       setError(errorMessage);
-      setResult(null);      
+      setResult(null);
+    } finally {
+      setLoading(false);
     }
   };
 
   const imageTo28x28GrayPixels = (file: File): Promise<number[]> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-
       reader.onload = function (e) {
         const img = new Image();
         img.onload = function () {
@@ -79,50 +96,76 @@ export default function Home() {
           const pixels: number[] = [];
           for (let i = 0; i < imageData.length; i += 4) {
             const gray = (imageData[i] + imageData[i + 1] + imageData[i + 2]) / 3;
-            pixels.push(gray / 255); // Normalizar
+            pixels.push(gray / 255);
           }
 
           resolve(pixels);
         };
-
         img.onerror = reject;
         img.src = e.target?.result as string;
       };
-
       reader.onerror = reject;
       reader.readAsDataURL(file);
     });
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-6 bg-gray-100">
-      <h1 className="text-2xl font-bold mb-4 text-center">Predicción con modelo ONNX</h1>
+    <main className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md text-center">
+        <h1 className="text-2xl font-bold mb-6 text-gray-800">
+          🧠 Predicción con modelo ONNX
+        </h1>
 
-      <input
-        type="file"
-        accept=".json,image/*"
-        onChange={handleFileChange}
-        className="mb-4"
-      />
+        {imagePreview && (
+          <img
+            src={imagePreview}
+            alt="Vista previa"
+            className="mb-4 rounded border shadow w-28 h-28 object-contain mx-auto"
+          />
+        )}
 
-      <button
-        onClick={handleSubmit}
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-      >
-        Enviar al modelo
-      </button>
+        <label
+          htmlFor="fileUpload"
+          className="inline-block bg-slate-700 text-white py-2 px-4 rounded cursor-pointer hover:bg-slate-600 transition"
+        >
+          Seleccionar archivo
+        </label>
 
-      {result && (
-        <div className="mt-4 p-3 bg-green-100 text-green-800 rounded">
-          Predicción: {result}
-        </div>
-      )}
+        <input
+          id="fileUpload"
+          type="file"
+          accept=".json,image/*"
+          onChange={handleFileChange}
+          className="hidden"
+        />
 
-      {error && (
-        <div className="mt-4 p-3 bg-red-100 text-red-700 rounded">
-          Error: {error}
-        </div>
-      )}
+        <p className="mt-2 text-sm text-gray-600">
+          {file ? `Archivo seleccionado: ${file.name}` : "Ningún archivo seleccionado"}
+        </p>
+
+        <button
+          onClick={handleSubmit}
+          disabled={!file || loading}
+          className="mt-6 w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:opacity-50 flex justify-center items-center gap-2"
+        >
+          {loading && (
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          )}
+          {loading ? "Procesando..." : "📤 Enviar al modelo"}
+        </button>
+
+        {result && (
+          <div className="mt-6 p-4 bg-green-100 text-green-800 rounded shadow-md font-semibold">
+            ✅ Predicción: {result}
+          </div>
+        )}
+
+        {error && (
+          <div className="mt-6 p-4 bg-red-100 text-red-800 rounded shadow-md text-sm">
+            ⚠️ {error}
+          </div>
+        )}
+      </div>
     </main>
   );
 }
