@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 
+
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<string | null>(null);
@@ -38,7 +39,7 @@ export default function Home() {
         return;
       }
 
-      const response = await fetch("http://18.118.208.57:8001/predict", {
+      const response = await fetch("http://18.118.197.158:8001/predict", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
