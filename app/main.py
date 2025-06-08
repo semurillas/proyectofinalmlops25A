@@ -27,6 +27,7 @@ session = load_model()
 class InputData(BaseModel):
     pixels: list[float]
 
+
 @app.post("/predict")
 async def predict_digit(data: InputData):
     try:

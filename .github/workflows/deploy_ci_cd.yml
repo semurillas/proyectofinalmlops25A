@@ -1,10 +1,10 @@
 name: Docker CI for ONNX Predictor
 
 on:
-  push:
-    branches: [ dev, prod ]
+  # push:
+  #   branches: [ dev, prod ]
   pull_request:
-    branches: [ prod ]
+    branches: [ dev,prod ]
 
 jobs:
   test-model:
@@ -82,7 +82,8 @@ jobs:
       - name: Tag and push image to ECR
         if: github.ref_name == 'prod' || github.base_ref == 'prod'
         run: |
-          IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/backend_repo          docker tag $IMAGE_TAG:latest $IMAGE_URI:latest
+          IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/backend_repo          
+          docker tag $IMAGE_TAG:latest $IMAGE_URI:latest
           docker push $IMAGE_URI:latest
 
       - name: Update ECS service
