@@ -73,18 +73,20 @@ jobs:
             -p $PORT:$PORT $IMAGE_TAG
       
       - name: Authenticate Docker to Amazon ECR
+        if: github.ref_name == 'prod' || github.base_ref == 'prod'
         run: |
           aws ecr get-login-password --region $AWS_REGION | \
           docker login --username AWS --password-stdin \
           ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com
 
       - name: Tag and push image to ECR
+        if: github.ref_name == 'prod' || github.base_ref == 'prod'
         run: |
-          IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_TAG
-          docker tag $IMAGE_TAG:latest $IMAGE_URI:latest
+          IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/backend_repo          docker tag $IMAGE_TAG:latest $IMAGE_URI:latest
           docker push $IMAGE_URI:latest
 
       - name: Update ECS service
+        if: github.ref_name == 'prod' || github.base_ref == 'prod'
         run: |
           aws ecs update-service \
             --cluster proyecto_final_mlops \
