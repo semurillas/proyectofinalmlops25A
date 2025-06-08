@@ -1,10 +1,10 @@
 name: Docker CI for ONNX Predictor
 
 on:
-  push:
-    branches: [ dev, prod ]
+  # push:
+  #   branches: [ dev, prod ]
   pull_request:
-    branches: [ prod ]
+    branches: [ dev,prod ]
 
 jobs:
   test-model:
