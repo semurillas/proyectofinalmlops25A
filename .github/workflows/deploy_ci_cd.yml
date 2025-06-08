@@ -9,11 +9,11 @@ on:
 jobs:
   test-model:
     runs-on: ubuntu-latest
-
+  
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
 
     steps:
       - name: Checkout code
@@ -33,6 +33,7 @@ jobs:
       - name: Run ONNX model tests
         run: |
           pytest test/test_onnx_model.py -v
+  
   build-and-promote:
     needs: test-model
     runs-on: ubuntu-latest
@@ -40,7 +41,7 @@ jobs:
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
 
     steps:
       - name: Checkout code
@@ -68,5 +69,28 @@ jobs:
           docker run -d -e PORT=${{ env.PORT }} \
             -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
             -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
-            -e AWS_REGION=${{ secrets.AWS_REGION }} \
+            -e AWS_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
             -p $PORT:$PORT $IMAGE_TAG
+      
+      - name: Authenticate Docker to Amazon ECR
+        if: github.ref_name == 'prod' || github.base_ref == 'prod'
+        run: |
+          aws ecr get-login-password --region $AWS_REGION | \
+          docker login --username AWS --password-stdin \
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com
+
+      - name: Tag and push image to ECR
+        if: github.ref_name == 'prod' || github.base_ref == 'prod'
+        run: |
+          IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/backend_repo          
+          docker tag $IMAGE_TAG:latest $IMAGE_URI:latest
+          docker push $IMAGE_URI:latest
+
+      - name: Update ECS service
+        if: github.ref_name == 'prod' || github.base_ref == 'prod'
+        run: |
+          aws ecs update-service \
+            --cluster proyecto_final_mlops \
+            --service backend_predictor-service \
+            --force-new-deployment \
+            --region $AWS_REGION
