@@ -38,7 +38,7 @@ export default function Home() {
         return;
       }
 
-      const response = await fetch("http://localhost:8000/predict", {
+      const response = await fetch("http://3.21.234.244:8000/predict", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
