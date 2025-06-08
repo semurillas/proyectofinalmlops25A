@@ -13,8 +13,8 @@ env:
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
   IMAGE_TAG: frontend
   ECR_REPO: frontend_repo
-  ECS_CLUSTER: proyectofinalmlops
-  ECS_SERVICE: frontend_service
+  ECS_CLUSTER: proyecto_final_mlops
+  ECS_SERVICE: frontend-service
 
 jobs:
   build-and-deploy:
