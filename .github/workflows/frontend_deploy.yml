@@ -14,7 +14,7 @@ env:
   IMAGE_TAG: frontend
   ECR_REPO: frontend_repo
   ECS_CLUSTER: proyecto_final_mlops
-  ECS_SERVICE: frontend-service
+  ECS_SERVICE: frontend-service-uhclo85d
 
 jobs:
   build-and-deploy:
