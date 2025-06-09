@@ -9,13 +9,10 @@ import uvicorn
 
 app = FastAPI()
 
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", 
-                   "http://alb-backend-predictor-1055852265.us-east-2.elb.amazonaws.com",
-                   "http://alb-backend-predictor-1055852265.us-east-2.elb.amazonaws.com:80",
-                   "http://alb-backend-predictor-1055852265.us-east-2.elb.amazonaws.com:8001"
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
