@@ -5,6 +5,8 @@ from pydantic import BaseModel
 from onnx_predictor import download_model_from_s3, load_model, predict
 import numpy as np
 import uvicorn
+from logger import log_prediction_to_s3
+import os
 
 
 app = FastAPI()
@@ -37,6 +39,8 @@ async def predict_digit(data: InputData):
 
         arr = np.array(data.pixels, dtype=np.float32).reshape(1, 1, 28, 28)
         pred = predict(session, arr)
+        environment = os.getenv("ENVIRONMENT", "dev")  # Por defecto será 'dev'
+        log_prediction_to_s3(str(pred), environment)
         return JSONResponse(content={"prediccion": pred})
 
     except Exception as e:

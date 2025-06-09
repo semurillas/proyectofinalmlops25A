@@ -51,9 +51,11 @@ jobs:
         run: |
           if [[ "${{ github.ref_name }}" == "prod" ]]; then
             echo "PORT=8001" >> $GITHUB_ENV
+            echo "ENVIRONMENT=prod" >> $GITHUB_ENV
             echo "IMAGE_TAG=onnx_model_prod" >> $GITHUB_ENV
           else
             echo "PORT=8000" >> $GITHUB_ENV
+            echo "ENVIRONMENT=dev" >> $GITHUB_ENV
             echo "IMAGE_TAG=onnx_model_dev" >> $GITHUB_ENV
           fi
 
@@ -67,6 +69,7 @@ jobs:
       - name: Run Docker container with correct port
         run: |
           docker run -d -e PORT=${{ env.PORT }} \
+            -e ENVIRONMENT=${{ env.ENVIRONMENT }} \
             -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
             -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
             -e AWS_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
