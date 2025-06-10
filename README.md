@@ -1,4 +1,5 @@
-# proyectofinalmlops25A
+# Proyecto Final MLOps 
+## Junio - 2025
 Este repositorio contiene el proyecto final de la materia **MLOps** desarrollado por Octavio Guerra y Sebastián Murillas. La solución se compone de un backend en FastAPI que sirve un modelo ONNX para reconocimiento de dígitos y de un frontend en Next.js que permite interactuar con el servicio.
 
 ## Estructura
@@ -49,7 +50,7 @@ Los flujos definidos en `.github/workflows` ejecutan pruebas automáticas y gene
 ## Licencia
 Este proyecto se distribuye bajo los términos de la licencia MIT.
 
-# ![Celebración](https://media.giphy.com/media/l0HlOvJ7yaacpuSas/giphy.gif) Autores
+## Autores
 
 - Sebastian Murillas  
 - Octavio Guerra M.
