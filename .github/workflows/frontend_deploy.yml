@@ -33,7 +33,7 @@ jobs:
         run: |
           if [[ "${{ github.ref_name }}" == "prod" ]]; then
             echo "IMAGE_TAG=frontend-prod" >> $GITHUB_ENV
-            echo "BACKEND_URL=http://alb-frontend-1245245350.us-east-2.elb.amazonaws.com" >> $GITHUB_ENV
+            echo "BACKEND_URL=http://alb-backend-predictor-1055852265.us-east-2.elb.amazonaws.com" >> $GITHUB_ENV
           else
             echo "IMAGE_TAG=frontend-dev" >> $GITHUB_ENV
             echo "BACKEND_URL=http://localhost:8000" >> $GITHUB_ENV
