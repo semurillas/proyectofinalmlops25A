@@ -44,6 +44,7 @@ jobs:
         run: |
            docker build \
            --build-arg NEXT_PUBLIC_BACKEND_URL=$BACKEND_URL \
+           -f frontend-onnx/Dockerfile \
            -t $IMAGE_TAG . 
 
       - name: Run Docker container with correct port
