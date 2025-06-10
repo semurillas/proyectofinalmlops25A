@@ -9,7 +9,7 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiar el código fuente
-COPY app/main.py app/onnx_predictor.py ./
+COPY app/main.py app/onnx_predictor.py app/logger.py ./
 
 # Variable de entorno por defecto (puede ser sobreescrita)
 ENV PORT=8000
