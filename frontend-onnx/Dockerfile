@@ -3,6 +3,10 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+# Declarar la variable que se pasará desde GitHub Actions
+ARG NEXT_PUBLIC_BACKEND_URL
+ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
+
 # Copiar solo package.json para aprovechar cache si no hay cambios en dependencias
 COPY package.json package-lock.json* ./
 
