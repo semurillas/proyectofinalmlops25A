@@ -9,6 +9,7 @@ on:
     branches:
       - prod
       - dev
+      
 env:
   AWS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
@@ -43,7 +44,8 @@ jobs:
         run: |
            docker build \
            --build-arg NEXT_PUBLIC_BACKEND_URL=$BACKEND_URL \
-           -t $IMAGE_TAG . 
+           -f frontend-onnx/Dockerfile \
+           -t $IMAGE_TAG frontend-onnx/ 
 
       - name: Run Docker container with correct port
         run: |
