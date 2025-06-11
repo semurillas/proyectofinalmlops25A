@@ -2,6 +2,8 @@
 ## Junio - 2025
 Este repositorio contiene el proyecto final de la materia **MLOps** desarrollado por Octavio Guerra y Sebastián Murillas. La solución se compone de un backend en FastAPI que sirve un modelo ONNX para reconocimiento de dígitos y de un frontend en Next.js que permite interactuar con el servicio.
 
+Adicionalmente se han implementado pipelines para el despliegue de las imagenes docker en las cuales se han contenerizado tanto los servicios de backend y frontend, este despliegue se realiza en dos ambientes uno en el entorno de desarrollo y otro en el de produccion, el ambiente de produccion de despliega de manera local y el de produccion se despliega en AWS a traves de el servicio ECS. Por otra parte y de acuerdo a los requerimientos el modelo onnx utilizado se encuentra almcenado en un servicio S3 al cual se accede desde la API , de igual forma en este mismo repositorio se almcenan las predicciones del modelo en archivos .txt que estan identificados de acuerdo al ambiente en el cual se generan las predicciones.
+
 ## Estructura
 - **app/**: código del backend (FastAPI, carga del modelo y logging de predicciones).
 - **frontend-onnx/**: aplicación web creada con Next.js y TypeScript.
