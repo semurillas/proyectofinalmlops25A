@@ -27,7 +27,7 @@ export default function Home() {
 
   const handleSubmit = async () => {
     if (!file) {
-      setError("Por favor selecciona un archivo.");
+      setError("Por favor selecciona un archivo valido.");
       return;
     }
 
